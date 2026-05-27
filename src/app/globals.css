@@ -47,54 +47,46 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* GitSnap custom tokens */
-  --color-sha-bg: var(--sha-bg);
-  --color-sha-text: var(--sha-text);
-  --color-sha-border: var(--sha-border);
-  --color-code-bg: var(--code-bg);
-  --color-code-text: var(--code-text);
-  --color-code-comment: var(--code-comment);
-  --color-code-string: var(--code-string);
-  --color-code-keyword: var(--code-keyword);
-  --color-code-number: var(--code-number);
-  --color-bg-hover: var(--bg-hover);
-  --color-bg-active: var(--bg-active);
+  /* Page-level semantic tokens */
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-text-ghost: var(--text-ghost);
+  --color-border-default: var(--border-default);
   --color-border-subtle: var(--border-subtle);
-  --color-border-strong: var(--border-strong);
+  --color-border-hover: var(--border-hover);
+  --color-badge-bg: var(--badge-bg);
+  --color-badge-text: var(--badge-text);
+  --color-badge-border: var(--badge-border);
+  --color-heading-from: var(--heading-from);
+  --color-heading-via: var(--heading-via);
+  --color-heading-to: var(--heading-to);
+  --color-corner-tick: var(--corner-tick);
+  --color-footer-border: var(--footer-border);
 }
 
 :root {
-  /* ── GitSnap — dark only ── */
   --background: oklch(0.09 0 0);
-  /* #080808 */
   --foreground: oklch(0.93 0 0);
-  /* #f0f0f0 */
   --card: oklch(0.12 0 0);
-  /* #0f0f0f */
   --card-foreground: oklch(0.93 0 0);
   --popover: oklch(0.13 0 0);
-  /* #111111 */
   --popover-foreground: oklch(0.93 0 0);
   --primary: oklch(0.88 0 0);
-  /* #e2e2e2 — accent */
   --primary-foreground: oklch(0.09 0 0);
-  /* #080808 */
   --secondary: oklch(0.17 0 0);
-  /* #1e1e1e */
   --secondary-foreground: oklch(0.93 0 0);
   --muted: oklch(0.17 0 0);
-  /* #1e1e1e */
   --muted-foreground: oklch(0.55 0 0);
-  /* #888888 */
   --accent: oklch(0.20 0 0);
-  /* #242424 */
   --accent-foreground: oklch(0.93 0 0);
   --destructive: oklch(0.45 0.12 22);
-  /* muted red */
   --border: oklch(1 0 0 / 8%);
-  /* rgba(255,255,255,0.08) */
   --input: oklch(1 0 0 / 10%);
-  /* rgba(255,255,255,0.10) */
   --ring: oklch(0.55 0 0);
   --radius: 0.5rem;
 
@@ -107,7 +99,6 @@
 
   /* Sidebar */
   --sidebar: oklch(0.13 0 0);
-  /* #111111 */
   --sidebar-foreground: oklch(0.93 0 0);
   --sidebar-primary: oklch(0.88 0 0);
   --sidebar-primary-foreground: oklch(0.09 0 0);
@@ -116,42 +107,31 @@
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.55 0 0);
 
-  /* GitSnap custom */
-  --sha-bg: oklch(0.15 0 0);
-  /* #161616 */
-  --sha-text: oklch(0.45 0 0);
-  /* #666666 */
-  --sha-border: oklch(0.22 0 0);
-  /* #2a2a2a */
-  --code-bg: oklch(0.10 0 0);
-  /* #0d0d0d */
-  --code-text: oklch(0.83 0 0);
-  /* #c9d1d9 */
-  --code-comment: oklch(0.35 0 0);
-  /* #484848 */
-  --code-string: oklch(0.65 0.07 155);
-  /* muted green */
-  --code-keyword: oklch(0.65 0.10 280);
-  /* muted lavender */
-  --code-number: oklch(0.68 0.08 60);
-  /* muted amber */
-  --bg-hover: oklch(0.17 0 0);
-  /* #1e1e1e */
-  --bg-active: oklch(0.20 0 0);
-  /* #242424 */
-  --border-subtle: oklch(0.14 0 0);
-  /* #1a1a1a */
-  --border-strong: oklch(0.25 0 0);
-  /* #333333 */
+  /* Page semantic tokens */
+  --surface: oklch(0.11 0.005 280);
+  --surface-hover: oklch(0.14 0 0);
+  --surface-active: oklch(0.17 0 0);
+  --text-primary: oklch(0.87 0 0);
+  --text-secondary: oklch(0.65 0 0);
+  --text-muted: oklch(0.55 0 0);
+  --text-faint: oklch(0.45 0 0);
+  --text-ghost: oklch(0.38 0 0);
+  --border-default: oklch(0.22 0 0);
+  --border-subtle: oklch(0.18 0 0);
+  --border-hover: oklch(0.30 0 0);
+  --badge-bg: oklch(0.18 0 0);
+  --badge-text: oklch(0.50 0 0);
+  --badge-border: oklch(0.28 0 0);
+  --heading-from: oklch(1 0 0);
+  --heading-via: oklch(0.95 0 0);
+  --heading-to: oklch(0.60 0 0);
+  --corner-tick: oklch(0.40 0 0);
+  --footer-border: oklch(0.13 0 0 / 30%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-  }
-
-  .check {
-    @apply border border-red-400;
   }
 
   body {
