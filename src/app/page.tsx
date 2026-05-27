@@ -1,6 +1,8 @@
 "use client";
 
+
 import { Spotlight } from "@/components/ui/spotlight-new";
+import TextType from "@/components/TextType";
 import { GithubSearchInput } from "./components/Githubinput";
 import { GitBranchMinus } from "lucide-react";
 
@@ -32,10 +34,13 @@ export default function GitHubStatsHome() {
 
 
             {/* Title Section with Metallic Chrome Gradients */}
-            <div className="text-center max-w-3xl z-10 mb-12">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-center leading-[1.2] mb-6">
-                <span className="bg-clip-text text-transparent bg-linear-to-b opacity-70 from-white via-zinc-100 to-zinc-400">
-                  See your
+            <div className="text-center max-w-3xl   z-10 mb-12">
+              <h1 className="text-4xl md:text-6xl  font-bold tracking-tight text-center leading-[1.2] mb-6">
+                <span className="bg-clip-text  text-transparent bg-linear-to-b opacity-70 from-white via-zinc-100 to-zinc-400">
+                  Download any <br />
+                </span>{" "}
+                <span className="bg-clip-text  text-transparent bg-linear-to-b opacity-70 from-white via-zinc-100 to-zinc-400">
+                  GitHub repo's<br />
                 </span>{" "}
                 <span className="relative inline-flex items-center justify-center px-5 py-1 mx-1.5 bg-zinc-900/40 border border-zinc-800/80 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.01)]">
                   {/* Subtle technical bracket/corner ticks */}
@@ -43,14 +48,27 @@ export default function GitHubStatsHome() {
                   <span className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-550"></span>
                   <span className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-550"></span>
                   <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-550"></span>
-                  <span className="relative bg-clip-text text-transparent bg-linear-to-b from-white to-zinc-350 font-semibold font-mono tracking-tight">
-                    GitHub
+                  <span className="relative   bg-clip-text text-white bg-linear-to-b from-white to-zinc-350 font-semibold font-mono tracking-tight">
+                    {/* main text here */}
+
+                    <TextType
+                      text={["Text typing effect", "for your websites", "Happy coding!"]}
+                      typingSpeed={75}
+                      pauseDuration={1500}
+                      showCursor={true}
+                      cursorCharacter="_"
+                      texts={["Directory", "File", "Commit", "Snippet"]}
+                      className="opacity-70"
+                      deletingSpeed={50}
+                      variableSpeedEnabled={false}
+                      variableSpeedMin={60}
+                      variableSpeedMax={120}
+                      cursorBlinkDuration={0.5}
+                    />
                   </span>
                 </span>{" "}
                 <span className="bg-clip-text text-transparent bg-linear-to-b opacity-70 from-white via-zinc-100 to-zinc-400">
-                  clearly
-                  <br />
-                  in one clean view
+                  directly
                 </span>
               </h1>
 
@@ -95,15 +113,15 @@ export default function GitHubStatsHome() {
           </div>
 
         </main>
-      </div>
+      </div >
 
       {/* Footer */}
-      <footer className="relative z-10 w-full py-8 text-center border-t border-zinc-900/30">
+      < footer className="relative z-10 w-full py-8 text-center border-t border-zinc-900/30" >
         <p className="text-xs text-zinc-600 font-mono">
-          Built by <span className="text-zinc-500 font-medium">Sourav</span>. No sign-in.
+          Built by <span className="text-zinc-500 font-medium">Ayush</span>. No sign-in.
         </p>
-      </footer>
+      </footer >
 
-    </div>
+    </div >
   );
 }
