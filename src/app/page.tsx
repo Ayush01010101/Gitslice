@@ -3,12 +3,16 @@
 
 import { Spotlight } from "@/components/ui/spotlight-new";
 import TextType from "@/components/TextType";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { GithubSearchInput } from "./components/Githubinput";
 
 import { GitBranchMinus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function GitHubStatsHome() {
+  const [repourl, setrepourl] = useState<string>("")
+  const router = useRouter()
   return (
     <div className="min-h-screen w-full bg-surface text-text-primary font-sans relative overflow-hidden flex flex-col justify-between selection:bg-foreground selection:text-background">
 
@@ -84,8 +88,17 @@ export default function GitHubStatsHome() {
             <div className="w-full max-w-2xl px-4 z-10">
               <GithubSearchInput
                 placeholder="Paste github repo url"
+                value={repourl}
+
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setrepourl(e.target.value)
+                }}
                 onSubmit={(val) => {
-                  console.log("Searching user:", val);
+
+                  const extractedRepoNameandOwner = repourl.split("/")
+
+                  const routeToNavigate = `${extractedRepoNameandOwner[3]}/${extractedRepoNameandOwner[4]}`
+                  router.push(`/repo/${routeToNavigate}`)
                 }}
               />
             </div>
