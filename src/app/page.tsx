@@ -13,12 +13,14 @@ import { Button } from "@/components/ui/button";
 export default function GitHubStatsHome() {
   const [repourl, setrepourl] = useState<string>("")
   const router = useRouter()
+  console.log(process.env.GITHUB_API_URL)
+
   return (
     <div className="min-h-screen w-full bg-surface text-text-primary font-sans relative overflow-hidden flex flex-col justify-between selection:bg-foreground selection:text-background">
 
 
       <Spotlight height={2000} />
-      <div className="relative z-10 w-full flex-grow flex flex-col">
+      <div className="relative z-10 w-full grow flex flex-col">
 
         {/* Navigation Bar */}
         <header className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">

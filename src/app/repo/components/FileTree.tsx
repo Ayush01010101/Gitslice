@@ -31,6 +31,7 @@ interface FileTreeProps {
   onOpenFile: (item: TreeItem) => void;
   onDownloadSelected: () => void;
   loading?: boolean;
+  isMobile?: boolean;
 }
 
 function formatSize(bytes: number): string {
@@ -51,6 +52,7 @@ export default function FileTree({
   onOpenFile,
   onDownloadSelected,
   loading = false,
+  isMobile = false,
 }: FileTreeProps) {
   const [copiedPath, setCopiedPath] = useState(false);
 
@@ -75,17 +77,11 @@ export default function FileTree({
     return total;
   }, [items, selectedItems]);
 
-  const handleCopyPath = () => {
-    const pathStr = "/" + currentPath.join("/");
-    navigator.clipboard.writeText(pathStr);
-    setCopiedPath(true);
-    setTimeout(() => setCopiedPath(false), 2000);
-  };
-
   return (
-    <div className="w-[340px] shrink-0 border-r border-border-subtle bg-surface/30 flex flex-col h-full select-none">
+    <div className={`${isMobile ? "w-full" : "w-[340px] shrink-0 border-r"
+      } border-border-subtle bg-surface/30 flex flex-col h-full select-none`}>
       {/* ---- header ---- */}
-      <div className="px-4 pt-4 pb-2">
+      <div className={`${isMobile ? "px-5 pt-5 pb-2" : "px-4 pt-4 pb-2"}`}>
         <div className="flex items-center gap-2">
           {currentPath.length > 0 && (
             <button
@@ -95,21 +91,16 @@ export default function FileTree({
               <ChevronLeft className="w-4 h-4" />
             </button>
           )}
-          <h2 className="text-sm font-semibold text-text-primary tracking-tight">
-            Tree
+          <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-sm"}`}>
+            Files
           </h2>
         </div>
       </div>
 
       {/* ---- breadcrumb ---- */}
-      <div className="px-4 pb-2">
-        <div className="flex items-center gap-1 text-xs text-text-ghost overflow-x-auto">
-          <button
-            onClick={() => onNavigate([])}
-            className="hover:text-text-secondary transition-colors cursor-pointer shrink-0 font-mono"
-          >
-            /
-          </button>
+      <div className={`${isMobile ? "px-5" : "px-4"} pb-2`}>
+        <div className={`flex items-center gap-1 ${isMobile ? "text-sm" : "text-xs"} text-text-ghost overflow-x-auto`}>
+
           {currentPath.map((segment, i) => (
             <div key={i} className="flex items-center gap-1 shrink-0">
               <span className="text-text-ghost">/</span>
@@ -124,50 +115,28 @@ export default function FileTree({
         </div>
       </div>
 
-      {/* ---- toolbar ---- */}
-      <div className="flex items-center gap-1.5 px-4 pb-3">
-        <button className="p-1.5 rounded-md border border-border-subtle bg-card/30 hover:bg-surface-hover text-text-ghost hover:text-text-secondary transition-colors cursor-pointer">
-          <Plus className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={handleCopyPath}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border-subtle bg-card/30 hover:bg-surface-hover text-text-ghost hover:text-text-secondary text-xs transition-colors cursor-pointer"
-        >
-          {copiedPath ? (
-            <Check className="w-3.5 h-3.5 text-[oklch(0.65_0.15_150)]" />
-          ) : (
-            <Copy className="w-3.5 h-3.5" />
-          )}
-          {copiedPath ? "Copied" : "Copy path"}
-        </button>
-        <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border-subtle bg-card/30 hover:bg-surface-hover text-text-ghost hover:text-text-secondary text-xs transition-colors cursor-pointer">
-          <Download className="w-3.5 h-3.5" />
-          Download
-          <ChevronDown className="w-3 h-3" />
-        </button>
-      </div>
+
 
       {/* ---- divider ---- */}
       <div className="h-px bg-border-subtle" />
 
       {/* ---- table header ---- */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border-subtle">
+      <div className={`flex items-center gap-3 ${isMobile ? "px-5" : "px-4"} py-2.5 border-b border-border-subtle`}>
         {/* select-all checkbox */}
         <button
           onClick={() => onSelectAll(!allChecked)}
-          className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
-            allChecked
-              ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
-              : someChecked
+          className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${allChecked
+            ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
+            : someChecked
               ? "bg-[oklch(0.55_0.2_260)]/50 border-[oklch(0.55_0.2_260)]"
               : "border-border-default hover:border-border-hover"
-          }`}
+            }`}
         >
           {(allChecked || someChecked) && (
             <Check className="w-3 h-3 text-white" strokeWidth={3} />
           )}
         </button>
-        <span className="text-xs font-medium text-text-muted">Name</span>
+        <span className={`${isMobile ? "text-sm" : "text-xs"} font-medium text-text-muted`}>Name</span>
       </div>
 
       {/* ---- file list ---- */}
@@ -206,7 +175,7 @@ export default function FileTree({
               return (
                 <div
                   key={item.path}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface-hover/60 transition-colors group"
+                  className={`flex items-center gap-3 ${isMobile ? "px-4 py-3.5" : "px-3 py-2.5"} rounded-xl hover:bg-surface-hover/60 transition-colors group`}
                 >
                   {/* checkbox */}
                   <button
@@ -214,11 +183,10 @@ export default function FileTree({
                       e.stopPropagation();
                       onToggleSelect(item.path);
                     }}
-                    className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
-                      isChecked
-                        ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
-                        : "border-border-default hover:border-border-hover"
-                    }`}
+                    className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${isChecked
+                      ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
+                      : "border-border-default hover:border-border-hover"
+                      }`}
                   >
                     {isChecked && (
                       <Check className="w-3 h-3 text-white" strokeWidth={3} />
@@ -241,7 +209,7 @@ export default function FileTree({
                         onOpenFile(item);
                       }
                     }}
-                    className="flex-1 text-left text-xs text-text-secondary group-hover:text-text-primary font-medium transition-colors cursor-pointer truncate"
+                    className={`flex-1 text-left ${isMobile ? "text-sm" : "text-xs"} text-text-secondary group-hover:text-text-primary font-medium transition-colors cursor-pointer truncate`}
                   >
                     {item.name}
                   </button>
@@ -265,6 +233,7 @@ export default function FileTree({
                       <Download className="w-3.5 h-3.5" />
                     </a>
                   )}
+
                 </div>
               );
             })}
@@ -281,29 +250,31 @@ export default function FileTree({
       </div>
 
       {/* ---- selection bar ---- */}
-      {selectedCount > 0 && (
-        <div className="border-t border-border-subtle px-4 py-3 flex items-center justify-between bg-card/30 backdrop-blur-sm">
-          <span className="text-xs text-text-muted">
-            <span className="font-semibold text-text-secondary">
-              {selectedCount} item{selectedCount > 1 ? "s" : ""}
-            </span>{" "}
-            selected
-            {selectedSize > 0 && (
-              <span className="ml-1.5 text-text-ghost">
-                · {formatSize(selectedSize)}
-              </span>
-            )}
-          </span>
+      {
+        selectedCount > 0 && (
+          <div className={`border-t border-border-subtle ${isMobile ? "px-5" : "px-4"} py-3 flex items-center justify-between bg-card/30 backdrop-blur-sm`}>
+            <span className="text-xs text-text-muted">
+              <span className="font-semibold text-text-secondary">
+                {selectedCount} item{selectedCount > 1 ? "s" : ""}
+              </span>{" "}
+              selected
+              {selectedSize > 0 && (
+                <span className="ml-1.5 text-text-ghost">
+                  · {formatSize(selectedSize)}
+                </span>
+              )}
+            </span>
 
-          <button
-            onClick={onDownloadSelected}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)]"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Download Selected (ZIP)
-          </button>
-        </div>
-      )}
-    </div>
+            <button
+              onClick={onDownloadSelected}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)]"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download Selected (ZIP)
+            </button>
+          </div>
+        )
+      }
+    </div >
   );
 }

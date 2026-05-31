@@ -19,6 +19,7 @@ interface CommitSidebarProps {
   onLoadMore?: () => void;
   loading?: boolean;
   hasMore?: boolean;
+  isMobile?: boolean;
 }
 
 function formatRelativeTime(dateStr: string): string {
@@ -52,6 +53,7 @@ export default function CommitSidebar({
   onLoadMore,
   loading = false,
   hasMore = true,
+  isMobile = false,
 }: CommitSidebarProps) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "branches" | "tags">(
@@ -76,30 +78,34 @@ export default function CommitSidebar({
   ];
 
   return (
-    <aside className="w-[260px] shrink-0 border-r border-border-subtle bg-surface/40 backdrop-blur-md flex flex-col h-full select-none">
+    <aside className={`${
+      isMobile ? "w-full" : "w-[260px] shrink-0 border-r"
+    } border-border-subtle bg-surface/40 backdrop-blur-md flex flex-col h-full select-none`}>
       {/* ---- header ---- */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h2 className="text-sm font-semibold text-text-primary tracking-tight">
+      <div className={`flex items-center justify-between ${isMobile ? "px-5 pt-5 pb-2" : "px-4 pt-4 pb-2"}`}>
+        <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-sm"}`}>
           Commits
         </h2>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-md hover:bg-surface-hover text-text-ghost hover:text-text-secondary transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        {!isMobile && (
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-surface-hover text-text-ghost hover:text-text-secondary transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* ---- search ---- */}
-      <div className="px-3 pb-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border-subtle bg-card/40 focus-within:border-border-hover transition-colors">
+      <div className={`${isMobile ? "px-5" : "px-3"} pb-3`}>
+        <div className={`flex items-center gap-2 px-3 ${isMobile ? "py-2.5" : "py-2"} rounded-xl border border-border-subtle bg-card/40 focus-within:border-border-hover transition-colors`}>
           <Search className="w-3.5 h-3.5 text-text-ghost shrink-0" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search commits..."
-            className="flex-1 bg-transparent text-xs text-text-primary placeholder:text-text-ghost outline-none"
+            className={`flex-1 bg-transparent ${isMobile ? "text-sm" : "text-xs"} text-text-primary placeholder:text-text-ghost outline-none`}
           />
           {search && (
             <button
@@ -113,12 +119,12 @@ export default function CommitSidebar({
       </div>
 
       {/* ---- tabs ---- */}
-      <div className="flex items-center gap-0.5 px-3 pb-3">
+      <div className={`flex items-center gap-0.5 ${isMobile ? "px-5" : "px-3"} pb-3`}>
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md ${isMobile ? "text-sm" : "text-xs"} font-medium transition-colors cursor-pointer ${
               activeTab === tab.key
                 ? "bg-surface-active text-text-primary"
                 : "text-text-ghost hover:text-text-muted hover:bg-surface-hover/50"
@@ -130,10 +136,10 @@ export default function CommitSidebar({
       </div>
 
       {/* ---- divider ---- */}
-      <div className="h-px bg-border-subtle mx-3" />
+      <div className={`h-px bg-border-subtle ${isMobile ? "mx-5" : "mx-3"}`} />
 
       {/* ---- commit list ---- */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 scrollbar-thin">
+      <div className={`flex-1 overflow-y-auto ${isMobile ? "px-3 py-3 space-y-1" : "px-2 py-2 space-y-0.5"} scrollbar-thin`}>
         {loading && commits.length === 0
           ? Array.from({ length: 8 }).map((_, i) => (
               <div
@@ -156,7 +162,7 @@ export default function CommitSidebar({
                 <button
                   key={commit.sha}
                   onClick={() => onSelectCommit(commit.sha)}
-                  className={`w-full text-left px-3 py-3 rounded-lg transition-all duration-150 cursor-pointer group ${
+                  className={`w-full text-left ${isMobile ? "px-4 py-4" : "px-3 py-3"} rounded-xl transition-all duration-150 cursor-pointer group ${
                     isSelected
                       ? "bg-surface-active border-l-2 border-[oklch(0.6_0.18_260)]"
                       : "hover:bg-surface-hover/60 border-l-2 border-transparent"
@@ -176,7 +182,7 @@ export default function CommitSidebar({
                       </div>
                     )}
                     <p
-                      className={`text-xs leading-snug line-clamp-2 ${
+                      className={`${isMobile ? "text-sm" : "text-xs"} leading-snug line-clamp-2 ${
                         isSelected
                           ? "text-text-primary font-medium"
                           : "text-text-secondary group-hover:text-text-primary"
