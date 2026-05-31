@@ -1,6 +1,6 @@
 
 "use client";
-import { RepoInfoBarProps } from "../types/RepoInfoBarProps";
+import { RepoInfoBarProps } from "@/lib/types/repoInfoBar.type";
 import { Button } from "@/components/ui/button";
 import {
   Star,

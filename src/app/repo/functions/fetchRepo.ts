@@ -1,4 +1,4 @@
-import { RepoInfo } from "../types/RepoInfo";
+import { RepoInfo } from "@/lib/types/repo.type";
 async function fetchRepo(owner: string, repo: string): Promise<RepoInfo> {
 
 

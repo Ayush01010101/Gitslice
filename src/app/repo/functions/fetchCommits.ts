@@ -1,4 +1,4 @@
-import { Commit } from "../components/CommitSidebar";
+import { Commit } from "@/lib/types/commit.type";
 export async function fetchCommits(
   owner: string,
   repo: string,

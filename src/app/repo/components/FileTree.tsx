@@ -11,15 +11,9 @@ import {
   Check,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { TreeItem } from "@/lib/types/tree.type";
 
-export interface TreeItem {
-  name: string;
-  type: "file" | "dir";
-  path: string;
-  size?: number;
-  sha: string;
-  download_url?: string | null;
-}
+export type { TreeItem };
 
 interface FileTreeProps {
   items: TreeItem[];

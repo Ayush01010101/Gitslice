@@ -2,14 +2,9 @@
 
 import { Search, X } from "lucide-react";
 import { useState, useMemo } from "react";
+import { Commit } from "@/lib/types/commit.type";
 
-export interface Commit {
-  sha: string;
-  message: string;
-  author: string;
-  authorAvatar?: string;
-  date: string;
-}
+export type { Commit };
 
 interface CommitSidebarProps {
   commits: Commit[];

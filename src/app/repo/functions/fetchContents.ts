@@ -1,4 +1,4 @@
-import { TreeItem } from "../components/FileTree";
+import { TreeItem } from "@/lib/types/tree.type";
 export async function fetchContents(
 
   owner: string,
