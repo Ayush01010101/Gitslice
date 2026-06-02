@@ -1,14 +1,22 @@
+import ApiResponce from "@/utities/ApiResponce";
+import { redis } from "@/lib/reddis";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { owner, repo } = await req.json();
+    const { owner, repo, newdata = false } = await req.json();
 
     if (!owner || !repo) {
       return NextResponse.json(
         { error: "owner and repo are required" },
         { status: 400 }
       );
+    }
+
+    //cache the repo data
+    if (!newdata) {
+      const CacheRepo = await redis.get(`repo/${owner}/${repo}`);
+      if (CacheRepo) return ApiResponce({ statusCode: 200, data: CacheRepo, message: "success" });
     }
 
     const API = process.env.GITHUB_API_URL;
@@ -22,11 +30,12 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json(data);
+
+    //set the cache
+    await redis.set(`repo/${owner}/${repo}`, JSON.stringify(data));
+
+    return ApiResponce({ statusCode: 200, data: data, message: "success" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
-      { status: 500 }
-    );
+    return ApiResponce({ statusCode: 500, data: error, message: "failed" });
   }
 }

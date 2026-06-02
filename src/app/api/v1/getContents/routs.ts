@@ -1,8 +1,10 @@
+import ApiResponce from "@/utities/ApiResponce";
+import { redis } from "@/lib/reddis";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { owner, repo, path, ref } = await req.json();
+    const { owner, repo, path, ref, newdata = false } = await req.json();
 
     if (!owner || !repo || ref === undefined) {
       return NextResponse.json(
@@ -11,11 +13,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const API = process.env.GITHUB_API_URL;
     const encodedPath = (path || "")
       .split("/")
       .map((s: string) => encodeURIComponent(s))
       .join("/");
+
+    //cache the contents
+    if (!newdata) {
+      const CacheContents = await redis.get(`contents/${owner}/${repo}/${encodedPath}/${ref}`);
+      if (CacheContents) return ApiResponce({ statusCode: 200, data: CacheContents, message: "success" });
+    }
+
+    const API = process.env.GITHUB_API_URL;
     const url = `${API}/repos/${owner}/${repo}/contents/${encodedPath}?ref=${ref}`;
 
     const res = await fetch(url);
@@ -51,11 +60,11 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    return NextResponse.json(contents);
+    //set the cache
+    await redis.set(`contents/${owner}/${repo}/${encodedPath}/${ref}`, JSON.stringify(contents));
+
+    return ApiResponce({ statusCode: 200, data: contents, message: "success" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
-      { status: 500 }
-    );
+    return ApiResponce({ statusCode: 500, data: error, message: "failed" });
   }
 }

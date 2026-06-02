@@ -1,11 +1,11 @@
 
 "use client";
 import { RepoInfoBarProps } from "@/lib/types/repoInfoBar.type";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Star,
   GitFork,
-  GitBranch,
   Download,
 } from "lucide-react";
 
@@ -13,44 +13,39 @@ import {
 function formatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
   if (num >= 1000) return (num / 1000).toFixed(1) + "k";
-  return num.toString();
+  return num.toString()
 }
 
-function formatRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-  const diffWeek = Math.floor(diffDay / 7);
-  const diffMonth = Math.floor(diffDay / 30);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  if (diffHour < 24)
-    return `${diffHour} hour${diffHour > 1 ? "s" : ""} ago`;
-  if (diffDay === 1) return "1 Day ago";
-  if (diffDay < 7) return `${diffDay} Days ago`;
-  if (diffWeek === 1) return "1 week ago";
-  if (diffWeek < 5) return `${diffWeek} weeks ago`;
-  if (diffMonth === 1) return "1 month ago";
-  return `${diffMonth} months ago`;
-}
 
-/* ------------------------------------------------------------------ */
 
 export default function RepoInfoBar({
   owner,
   reponame,
   description,
-  stars = 0,
-  forks = 0,
-  defaultBranch = "main",
   isPrivate = false,
-  loading = false,
 }: RepoInfoBarProps) {
 
+  const { isLoading: loading, data: repodata } = useQuery({
+    queryKey: [`repo/${owner}/${reponame}`],
+    queryFn: async () => {
+      const data = await fetch("/api/v1/getRepo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          owner: owner,
+          repo: reponame
+        })
+      })
+      const repo = await data.json()
+      return repo
+    },
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
+  })
 
   /* ---------- loading skeleton ---------- */
   if (loading) {
@@ -73,8 +68,8 @@ export default function RepoInfoBar({
   }
 
   return (
-    <div className="w-full check border-b border-border-subtle bg-surface/60 backdrop-blur-md">
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between px-4 sm:px-6 py-4 sm:py-5 gap-4 lg:gap-5">
+    <div className="w-full border-b border-border-subtle bg-surface/60 backdrop-blur-md">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between px-4 sm:px-6 py-4  sm:py-5 gap-4 lg:gap-5">
         {/* ---- Left: repo identity ---- */}
         <div className="flex flex-col gap-2.5 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
@@ -91,28 +86,28 @@ export default function RepoInfoBar({
 
           {description && (
             <p className="text-xs text-text-muted leading-relaxed max-w-md truncate">
-              {description}
+              {repodata.data.description}
             </p>
           )}
 
           <div className="flex items-center gap-4 text-xs text-text-faint">
             <span className="flex items-center gap-1">
               <Star className="w-3.5 h-3.5" />
-              {formatNumber(stars)}
+              {formatNumber(repodata.data.stargazers_count)}
             </span>
             <span className="flex items-center gap-1">
               <GitFork className="w-3.5 h-3.5" />
-              {formatNumber(forks)}
+              {formatNumber(repodata.data.forks)}
             </span>
-            <span className="flex items-center gap-1">
-              <GitBranch className="w-3.5 h-3.5" />
-              {defaultBranch}
-            </span>
+            {/* <span className="flex items-center gap-1"> */}
+            {/*   <GitBranch className="w-3.5 h-3.5" /> */}
+            {/*   {defaultBranch} */}
+            {/* </span> */}
           </div>
         </div>
 
         {/* ---- Right: download button (desktop only) ---- */}
-        <div className="hidden lg:flex items-center shrink-0">
+        <div className=" hidden lg:flex items-center shrink-0">
           <Button >
 
             <Download />

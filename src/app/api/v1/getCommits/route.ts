@@ -1,8 +1,21 @@
+import ApiResponce from "@/utities/ApiResponce";
+import { redis } from "@/lib/reddis";
 import { NextRequest, NextResponse } from "next/server";
 
+interface bodytype {
+  owner: string,
+  repo: string,
+  newdata?: boolean,
+  page?: number,
+  perPage?: number
+
+}
+
 export async function POST(req: NextRequest) {
+
   try {
-    const { owner, repo, page = 1, perPage = 20 } = await req.json();
+    const { owner, repo, newdata = false, page = 1, perPage = 10 }: bodytype = await req.json();
+
 
     if (!owner || !repo) {
       return NextResponse.json(
@@ -10,8 +23,16 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     const API = process.env.GITHUB_API_URL;
+
+    //cache the latest commit 
+    if (!newdata) {
+
+      const CacheCommits = await redis.get(`commits/${owner}/${repo}/${page}`);
+      if (CacheCommits) return ApiResponce({ statusCode: 200, data: CacheCommits, message: "success" })
+
+    }
+
     const res = await fetch(
       `${API}/repos/${owner}/${repo}/commits?per_page=${perPage}&page=${page}`
     );
@@ -42,11 +63,12 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    return NextResponse.json(commits);
+    //set the cache 
+    await redis.set(`commits/${owner}/${repo}/${page}`, JSON.stringify(commits));
+
+    return ApiResponce({ statusCode: 200, data: commits, message: "success" })
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
-      { status: 500 }
-    );
+    return ApiResponce({ statusCode: 500, data: error, message: "failed" })
+
   }
 }
