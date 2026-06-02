@@ -10,6 +10,9 @@ export async function fetchContents(
     .split("/")
     .map((s) => encodeURIComponent(s))
     .join("/");
+
+  const API = process.env.GITHUB_API_URL!
+
   const url = `${API}/repos/${owner}/${repo}/contents/${encodedPath}?ref=${ref}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Contents fetch failed: ${res.status}`);
