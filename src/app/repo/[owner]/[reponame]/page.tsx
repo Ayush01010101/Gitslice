@@ -40,30 +40,6 @@ export default function RepoPage() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("commits");
 
 
-  const { isPending: CommitsPending, error: Commiterror, data: commits } = useQuery({
-    queryKey: [`commits/${owner}/${reponame}/${commitPage}`],
-    queryFn: async () => {
-      console.log("use query trigger")
-      const data = await fetch("/api/v1/getCommits", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          owner: owner,
-          repo: reponame,
-          page: commitPage
-        })
-      })
-      const commits = await data.json()
-      return commits;
-    },
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false
-  })
-  console.log("commits", commits)
-
 
   /* ---- handlers ---- */
   // const handleSelectCommit = useCallback((sha: string) => {
@@ -156,11 +132,24 @@ export default function RepoPage() {
         description={"something description"}
         loading={false}
       />
+
+      {/* ---- desktop layout ---- */}
+      <div className="hidden lg:flex flex-1 overflow-hidden">
+        {/* commit sidebar */}
+        {showSidebar && (
+          <CommitSidebar
+            selectedSha={selectedSha}
+            Onclick={(commitSha: string) => { return {} }}
+            reponame={reponame}
+            owner={owner}
+            onLoadMore={() => { console.log("load more") }}
+            onClose={() => setShowSidebar(false)}
+          />
+        )}
+      </div>
     </div>
   )
-  {/* ================================================================ */ }
-  {/* DESKTOP (lg+) — original 3-panel side-by-side layout             */ }
-  {/* ================================================================ */ }
+  //desktop
   {/*     <div className="hidden lg:flex flex-1 overflow-hidden"> */ }
   {/*       {/* commit sidebar */ }
 }
@@ -176,17 +165,17 @@ export default function RepoPage() {
 {/*       )} */ }
 {/**/ }
 {/*       {/* file tree */ }
-{/*       <FileTree */ }
-{/*         items={treeItems} */ }
-{/*         currentPath={currentPath} */ }
-{/*         selectedItems={selectedItems} */ }
-{/*         onNavigate={handleNavigate} */ }
-{/*         onToggleSelect={handleToggleSelect} */ }
-{/*         onSelectAll={handleSelectAll} */ }
-{/*         onOpenFile={handleOpenFile} */ }
-{/*         onDownloadSelected={handleDownloadSelected} */ }
-{/*         loading={loadingTree} */ }
-{/*       /> */ }
+// <FileTree
+//   items={treeItems}
+//   currentPath={currentPath}
+//   selectedItems={selectedItems}
+//   onNavigate={handleNavigate}
+//   onToggleSelect={handleToggleSelect}
+//   onSelectAll={handleSelectAll}
+//   onOpenFile={handleOpenFile}
+//   onDownloadSelected={handleDownloadSelected}
+//   loading={loadingTree}
+// />
 {/**/ }
 {/*       {/* code viewer */ }
 {/*       {loadingFile ? ( */ }

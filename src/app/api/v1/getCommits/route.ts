@@ -11,11 +11,14 @@ interface bodytype {
 
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
+
+  const { searchParams } = req.nextUrl
+  const owner = searchParams.get("owner")
+  const repo = searchParams.get("repo")
+  const page = searchParams.get("page")
 
   try {
-    const { owner, repo, newdata = false, page = 1, perPage = 10 }: bodytype = await req.json();
-
 
     if (!owner || !repo) {
       return NextResponse.json(
@@ -26,7 +29,7 @@ export async function POST(req: NextRequest) {
     const API = process.env.GITHUB_API_URL;
 
     //cache the latest commit 
-    if (!newdata) {
+    if (!false) {
 
       const CacheCommits = await redis.get(`commits/${owner}/${repo}/${page}`);
       if (CacheCommits) return ApiResponce({ statusCode: 200, data: CacheCommits, message: "success" })
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const res = await fetch(
-      `${API}/repos/${owner}/${repo}/commits?per_page=${perPage}&page=${page}`
+      `${API}/repos/${owner}/${repo}/commits?per_page=${10}&page=${page}`
     );
 
     if (!res.ok) {

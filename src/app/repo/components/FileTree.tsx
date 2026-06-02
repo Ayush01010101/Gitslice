@@ -2,10 +2,7 @@
 
 import {
   ChevronLeft,
-  Plus,
-  Copy,
   Download,
-  ChevronDown,
   Folder,
   FileText,
   Check,
@@ -34,7 +31,6 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/* ------------------------------------------------------------------ */
 
 export default function FileTree({
   items,
