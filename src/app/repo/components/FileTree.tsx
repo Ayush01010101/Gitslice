@@ -112,7 +112,7 @@ export default function FileTree({
               <ChevronLeft className="w-4 h-4" />
             </button>
           )}
-          <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-sm"}`}>
+          <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-base"}`}>
             Files
           </h2>
         </div>
@@ -120,7 +120,7 @@ export default function FileTree({
 
       {/* ---- breadcrumb ---- */}
       <div className={`${isMobile ? "px-5" : "px-4"} pb-2`}>
-        <div className={`flex items-center scrollbar-none gap-1 ${isMobile ? "text-sm" : "text-xs"} text-text-ghost overflow-x-auto`}>
+        <div className={`flex items-center scrollbar-none gap-1 ${isMobile ? "text-base" : "text-sm"} text-text-ghost overflow-x-auto`}>
 
           {currentPath.map((segment, i) => (
             <div key={i} className="flex  items-center gap-1 shrink-0">
@@ -149,11 +149,11 @@ export default function FileTree({
           indeterminate={someChecked && !allChecked}
           onClick={() => setAllSelectedItems(sorted, !allChecked)}
         />
-        <span className={`${isMobile ? "text-sm" : "text-xs"} font-medium text-text-muted`}>Name</span>
+        <span className={`${isMobile ? "text-base" : "text-sm"} font-normal text-text-muted`}>Name</span>
       </div>
 
       {/* ---- file list ---- */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 scrollbar-thin overflow-y-auto">
         {loading ? (
           <div className="px-4 py-3 space-y-1">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -176,8 +176,8 @@ export default function FileTree({
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface-hover/60 transition-colors cursor-pointer group"
               >
                 <div className="w-4" />
-                <span className="text-xs text-text-ghost">📁</span>
-                <span className="text-xs text-text-muted group-hover:text-text-secondary font-medium">
+                <span className="text-sm text-text-ghost">📁</span>
+                <span className="text-sm text-text-muted group-hover:text-text-secondary font-medium">
                   ..
                 </span>
               </button>
@@ -215,14 +215,14 @@ export default function FileTree({
                         openFileFromTree(item);
                       }
                     }}
-                    className={`flex-1 text-left ${isMobile ? "text-sm" : "text-xs"} text-text-secondary group-hover:text-text-primary font-medium transition-colors cursor-pointer truncate`}
+                    className={`flex-1 text-left ${isMobile ? "text-base" : "text-sm"} text-text-secondary group-hover:text-text-primary font-medium transition-colors cursor-pointer truncate`}
                   >
                     {item.name}
                   </button>
 
                   {/* size */}
                   {item.type === "file" && item.size !== undefined && (
-                    <span className="text-[10px] text-text-ghost font-mono shrink-0">
+                    <span className="text-xs text-text-ghost font-mono shrink-0">
                       {formatSize(item.size)}
                     </span>
                   )}
@@ -249,7 +249,7 @@ export default function FileTree({
             {sorted.length === 0 && !loading && (
               <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
                 <Folder className="w-6 h-6 mb-2 opacity-40" />
-                <p className="text-xs">No files in this directory</p>
+                <p className="text-sm">No files in this directory</p>
               </div>
             )}
           </div>
@@ -260,7 +260,7 @@ export default function FileTree({
       {
         selectedCount > 0 && (
           <div className={`border-t border-border-subtle ${isMobile ? "px-5" : "px-4"} py-3 flex flex-wrap items-center justify-between gap-2 bg-card/30 backdrop-blur-sm`}>
-            <span className="text-xs text-text-muted">
+            <span className="text-sm text-text-muted">
               <span className="font-semibold text-text-secondary">
                 {selectedCount} item{selectedCount > 1 ? "s" : ""}
               </span>{" "}
@@ -275,7 +275,7 @@ export default function FileTree({
             <button
               onClick={() => downloadSelectedItems(sorted)}
               disabled={isDownloadingSelected}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)] disabled:cursor-wait disabled:opacity-70"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-xs font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)] disabled:cursor-wait disabled:opacity-70"
             >
               <Download className="w-3.5 h-3.5" />
               {isDownloadingSelected ? "Preparing ZIP..." : "Download Selected (ZIP)"}

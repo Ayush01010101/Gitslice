@@ -125,7 +125,7 @@ export default function CommitSidebar({
     <aside className={`${isMobile ? "w-full" : "w-96 shrink-0 border-r"} border-border-subtle bg-surface/40 backdrop-blur-md flex flex-col h-full select-none`}>
       {/* ---- header ---- */}
       <div className={`flex items-center justify-between ${isMobile ? "px-5 pt-5 pb-2" : "px-4 pt-4 pb-2"}`}>
-        <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-sm"}`}>
+        <h2 className={`font-semibold text-text-primary tracking-tight ${isMobile ? "text-base" : "text-base"}`}>
           Commits
         </h2>
 
@@ -140,7 +140,7 @@ export default function CommitSidebar({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search commits..."
-            className={`flex-1 bg-transparent ${isMobile ? "text-sm" : "text-xs"} text-text-primary placeholder:text-text-ghost outline-none`}
+            className={`flex-1 bg-transparent ${isMobile ? "text-sm" : "text-sm"} text-text-primary placeholder:text-text-ghost outline-none`}
           />
           {search && (
             <button
@@ -191,12 +191,12 @@ export default function CommitSidebar({
                       className="w-6 h-6 rounded-full ring-1 ring-border-subtle shrink-0 mt-0.5"
                     />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-surface-active flex items-center justify-center text-[9px] font-bold text-text-muted shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full bg-surface-active flex items-center justify-center text-xs font-bold text-text-muted shrink-0 mt-0.5">
                       {commit.author.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <p
-                    className={`${isMobile ? "text-sm" : "text-xs"} leading-snug line-clamp-2 ${isSelected
+                    className={`${isMobile ? "text-base" : "text-sm"} leading-snug line-clamp-2 ${isSelected
                       ? "text-text-primary font-medium"
                       : "text-text-secondary group-hover:text-text-primary"
                       }`}
@@ -208,14 +208,14 @@ export default function CommitSidebar({
                 {/* bottom row: hash + date */}
                 <div className="flex items-center justify-between pl-[34px]">
                   <span
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono ${isSelected
+                    className={`px-2 py-0.5 rounded-md text-xs font-mono ${isSelected
                       ? "bg-[oklch(0.25_0.08_260)] text-[oklch(0.7_0.15_260)] border border-[oklch(0.35_0.1_260)]"
                       : "bg-badge-bg text-badge-text border border-badge-border"
                       }`}
                   >
                     {commit.sha.slice(0, 7)}
                   </span>
-                  <span className="text-[10px] text-text-ghost">
+                  <span className="text-xs text-text-ghost">
                     {formatRelativeTime(commit.date)}
                   </span>
                 </div>
@@ -226,14 +226,14 @@ export default function CommitSidebar({
         {isWaitingForDebounce ? (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
-            <p className="text-xs">Searching GitHub in 3 seconds...</p>
+            <p className="text-sm">Searching GitHub in 3 seconds...</p>
           </div>
         ) : null}
 
         {activeError ? (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
-            <p className="text-xs">Unable to load commits</p>
+            <p className="text-sm">Unable to load commits</p>
           </div>
         ) : null}
 
@@ -241,7 +241,7 @@ export default function CommitSidebar({
         {!isLoading && !isSearchingGithub && !isWaitingForDebounce && !activeError && displayedCommits.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
-            <p className="text-xs">No commits found</p>
+            <p className="text-sm">No commits found</p>
           </div>
         )}
       </div>

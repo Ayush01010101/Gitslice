@@ -110,15 +110,15 @@ const KEYWORDS = new Set([
 interface Token {
   text: string;
   type:
-    | "keyword"
-    | "string"
-    | "comment"
-    | "number"
-    | "type"
-    | "operator"
-    | "punctuation"
-    | "identifier"
-    | "plain";
+  | "keyword"
+  | "string"
+  | "comment"
+  | "number"
+  | "type"
+  | "operator"
+  | "punctuation"
+  | "identifier"
+  | "plain";
 }
 
 function tokenizeLine(line: string): Token[] {
@@ -246,7 +246,7 @@ export default function CodeViewer({
           {/* active tab */}
           <div className="flex items-center gap-2 px-4 py-2.5 bg-background/60 border-b-2 border-[oklch(0.6_0.18_260)] text-text-primary">
             <FileText className="w-3.5 h-3.5 text-text-muted" />
-            <span className="text-xs font-medium">{filename}</span>
+            <span className="text-sm font-medium">{filename}</span>
             <button
               onClick={onClose}
               className="ml-1 p-0.5 rounded hover:bg-surface-hover text-text-ghost hover:text-text-secondary transition-colors cursor-pointer"
@@ -263,7 +263,7 @@ export default function CodeViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-md border border-border-subtle bg-card/30 hover:bg-surface-hover text-xs text-text-muted hover:text-text-secondary font-medium transition-colors"
+              className="px-3 py-1.5 rounded-md border border-border-subtle bg-card/30 hover:bg-surface-hover text-sm text-text-muted hover:text-text-secondary font-medium transition-colors"
             >
               Raw
             </a>
@@ -281,7 +281,7 @@ export default function CodeViewer({
       </div>
 
       {/* ---- code area ---- */}
-      <div className="flex-1 overflow-auto font-mono text-[13px] leading-[1.6]">
+      <div className="flex-1 overflow-auto scrollbar-thin font-mono text-sm leading-[1.6]">
         <table className="w-full border-collapse">
           <tbody>
             {lines.map((line, i) => {
@@ -293,7 +293,7 @@ export default function CodeViewer({
                 >
                   {/* line number */}
                   <td
-                    className="text-right select-none px-4 py-0 text-text-ghost/50 text-xs align-top sticky left-0 bg-background/60"
+                    className="text-right select-none px-4 py-0 text-text-ghost/50 text-sm align-top sticky left-0 bg-background/60"
                     style={{
                       minWidth: `${Math.max(gutterWidth * 10 + 32, 48)}px`,
                     }}
@@ -317,7 +317,7 @@ export default function CodeViewer({
       </div>
 
       {/* ---- status bar ---- */}
-      <div className="flex items-center justify-between px-4 py-1.5 border-t border-border-subtle bg-surface/30 text-[11px] text-text-ghost">
+      <div className="flex items-center justify-between px-4 py-1.5 border-t border-border-subtle bg-surface/30 text-xs text-text-ghost">
         <div className="flex items-center gap-1.5">
           <Code2 className="w-3 h-3" />
           <span>{lang}</span>
@@ -341,10 +341,10 @@ export function CodeViewerEmpty() {
           <FileText className="w-8 h-8 opacity-30" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-text-muted mb-1">
+          <p className="text-base font-medium text-text-muted mb-1">
             No file selected
           </p>
-          <p className="text-xs text-text-ghost max-w-[240px]">
+          <p className="text-sm text-text-ghost max-w-60">
             Click on a file in the tree to view its contents here
           </p>
         </div>

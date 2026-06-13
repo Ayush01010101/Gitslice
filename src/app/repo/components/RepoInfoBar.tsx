@@ -73,7 +73,7 @@ export default function RepoInfoBar({
         {/* ---- Left: repo identity ---- */}
         <div className="flex flex-col gap-2.5 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-lg font-semibold tracking-tight truncate">
+            <h1 className="text-xl font-semibold tracking-tight truncate">
               <span className="text-text-secondary">{owner}</span>
               <span className="text-text-ghost mx-1.5">/</span>
               <span className="text-foreground">{reponame}</span>
@@ -85,12 +85,12 @@ export default function RepoInfoBar({
           </div>
 
           {description && (
-            <p className="text-xs text-text-muted leading-relaxed max-w-md truncate">
+            <p className="text-sm text-text-muted leading-relaxed max-w-md truncate">
               {repodata.data.description}
             </p>
           )}
 
-          <div className="flex items-center gap-4 text-xs text-text-faint">
+          <div className="flex items-center gap-4 text-sm text-text-faint">
             <span className="flex items-center gap-1">
               <Star className="w-3.5 h-3.5" />
               {formatNumber(repodata.data.stargazers_count)}
