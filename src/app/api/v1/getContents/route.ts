@@ -2,30 +2,36 @@ import ApiResponce from "@/utities/ApiResponce";
 import { redis } from "@/lib/reddis";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  try {
-    const { owner, repo, path, ref, newdata = false } = await req.json();
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const owner = searchParams.get("owner");
+  const repo = searchParams.get("repo");
+  const path = searchParams.get("path") || "";
+  const ref = searchParams.get("ref") || "";
+  console.log("request trigger in content")
 
-    if (!owner || !repo || ref === undefined) {
+  try {
+    if (!owner || !repo) {
       return NextResponse.json(
-        { error: "owner, repo, and ref are required" },
+        { error: "owner and repo are required" },
         { status: 400 }
       );
     }
 
-    const encodedPath = (path || "")
+    const encodedPath = path
       .split("/")
       .map((s: string) => encodeURIComponent(s))
       .join("/");
 
-    //cache the contents
-    if (!newdata) {
-      const CacheContents = await redis.get(`contents/${owner}/${repo}/${encodedPath}/${ref}`);
-      if (CacheContents) return ApiResponce({ statusCode: 200, data: CacheContents, message: "success" });
+    // check cache
+    const cacheKey = `contents/${owner}/${repo}/${encodedPath}/${ref}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return ApiResponce({ statusCode: 200, data: cached, message: "success" });
     }
 
     const API = process.env.GITHUB_API_URL;
-    const url = `${API}/repos/${owner}/${repo}/contents/${encodedPath}?ref=${ref}`;
+    const url = `${API}/repos/${owner}/${repo}/contents/${encodedPath}${ref ? `?ref=${ref}` : ""}`;
 
     const res = await fetch(url);
 
@@ -60,8 +66,8 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    //set the cache
-    await redis.set(`contents/${owner}/${repo}/${encodedPath}/${ref}`, JSON.stringify(contents));
+    // set cache
+    await redis.set(cacheKey, JSON.stringify(contents));
 
     return ApiResponce({ statusCode: 200, data: contents, message: "success" });
   } catch (error) {

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 export default function GitHubStatsHome() {
   const [repourl, setrepourl] = useState<string>("")
   const router = useRouter()
-  console.log(process.env.GITHUB_API_URL)
+  console.log(process.env.github_api_url)
 
   return (
     <div className="min-h-screen w-full bg-surface text-text-primary font-sans relative overflow-hidden flex flex-col justify-between selection:bg-foreground selection:text-background">

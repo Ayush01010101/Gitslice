@@ -68,7 +68,7 @@ export default function FileTree({
   }, [items, selectedItems]);
 
   return (
-    <div className={`${isMobile ? "w-full" : "w-[340px] shrink-0 border-r"
+    <div className={`${isMobile ? "w-full" : "w-85  shrink-0 border-r"
       } border-border-subtle bg-surface/30 flex flex-col h-full select-none`}>
       {/* ---- header ---- */}
       <div className={`${isMobile ? "px-5 pt-5 pb-2" : "px-4 pt-4 pb-2"}`}>
@@ -265,6 +265,6 @@ export default function FileTree({
           </div>
         )
       }
-    </div >
+    </div>
   );
 }
