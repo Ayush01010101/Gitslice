@@ -1,44 +1,70 @@
 "use client";
 import formatRelativeTime from "@/lib/formatRelativeTime";
 import { Search, X } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
-import { Commit } from "@/lib/types/commit.type";
+import { useEffect, useMemo, useState } from "react";
+import type { Commit } from "@/lib/types/commit.type";
 import { useQuery } from "@tanstack/react-query";
 import { useRepoViewStore } from "../store/useRepoViewStore";
 
 export type { Commit };
 
-const COMMIT_TABS = [
-  { key: "all" as const, label: "All" },
-  { key: "branches" as const, label: "Branches" },
-];
+const SEARCH_DEBOUNCE_MS = 3000;
 
 interface CommitSidebarProps {
   isMobile?: boolean;
+}
+
+function useDebouncedValue(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+function commitMatchesSearch(commit: Commit, query: string) {
+  const q = query.toLowerCase();
+
+  return (
+    commit.message.toLowerCase().includes(q) ||
+    commit.sha.toLowerCase().startsWith(q) ||
+    commit.author.toLowerCase().includes(q)
+  );
 }
 
 export default function CommitSidebar({
   isMobile = false,
 }: CommitSidebarProps) {
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"all" | "branches">("all");
-  const deferredSearch = useDeferredValue(search);
+  const searchQuery = search.trim();
+  const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const owner = useRepoViewStore((state) => state.owner);
   const reponame = useRepoViewStore((state) => state.reponame);
   const selectedSha = useRepoViewStore((state) => state.selectedSha);
   const selectCommit = useRepoViewStore((state) => state.selectCommit);
 
   const { isLoading, error, data: commitsData } = useQuery({
-    queryKey: ["commits", owner, reponame, 1],
+    queryKey: ["commits", owner, reponame, "latest"],
     queryFn: async () => {
       const querystring = new URLSearchParams({
         owner,
         repo: reponame,
-        page: "1",
       }).toString();
-      const data = await fetch(`/api/v1/getCommits?${querystring}`);
-      const commits = await data.json();
-      return commits;
+
+      const response = await fetch(`/api/v1/getCommits?${querystring}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to load commits: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
     },
     enabled: !!owner && !!reponame,
     refetchOnMount: false,
@@ -46,21 +72,54 @@ export default function CommitSidebar({
     refetchOnWindowFocus: false,
   });
 
-  const commits = (commitsData?.data ?? []) as Commit[];
-  const filtered = useMemo(() => {
-    if (!deferredSearch.trim()) return commits;
-    const q = deferredSearch.toLowerCase();
-    return commits.filter(
-      (c) =>
-        c.message.toLowerCase().includes(q) ||
-        c.sha.toLowerCase().startsWith(q) ||
-        c.author.toLowerCase().includes(q)
-    );
-  }, [commits, deferredSearch]);
+  const latestCommits = useMemo(
+    () => ((commitsData?.data ?? []) as Commit[]).slice(0, 10),
+    [commitsData]
+  );
+  const latestMatches = useMemo(() => {
+    if (!searchQuery) return latestCommits;
 
-  const onLoadMore = () => {
-    console.log("load more");
-  };
+    return latestCommits.filter((commit) =>
+      commitMatchesSearch(commit, searchQuery)
+    );
+  }, [latestCommits, searchQuery]);
+
+  const shouldSearchGithub =
+    debouncedSearch.length > 0 &&
+    debouncedSearch === searchQuery &&
+    latestMatches.length === 0;
+  const {
+    isFetching: isSearchingGithub,
+    error: searchError,
+    data: searchData,
+  } = useQuery({
+    queryKey: ["commits", owner, reponame, "search", debouncedSearch],
+    queryFn: async () => {
+      const querystring = new URLSearchParams({
+        owner,
+        repo: reponame,
+        search: debouncedSearch,
+      }).toString();
+
+      const response = await fetch(`/api/v1/getCommits?${querystring}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to search commits: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    enabled: !!owner && !!reponame && shouldSearchGithub,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const searchCommits = ((searchData?.data ?? []) as Commit[]).slice(0, 10);
+  const displayedCommits = shouldSearchGithub ? searchCommits : latestMatches;
+  const isWaitingForDebounce =
+    searchQuery.length > 0 && latestMatches.length === 0 && debouncedSearch !== searchQuery;
+  const activeError = error || searchError;
 
   return (
     <aside className={`${isMobile ? "w-full" : "w-96 shrink-0 border-r"} border-border-subtle bg-surface/40 backdrop-blur-md flex flex-col h-full select-none`}>
@@ -94,30 +153,12 @@ export default function CommitSidebar({
         </div>
       </div>
 
-      {/* ---- tabs ---- */}
-      <div className={`flex items-center gap-0.5 ${isMobile ? "px-5" : "px-3"} pb-3`}>
-        {
-          COMMIT_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-1.5 rounded-md ${isMobile ? "text-sm" : "text-xs"} font-medium transition-colors cursor-pointer ${activeTab === tab.key
-                ? "bg-surface-active text-text-primary"
-                : "text-text-ghost hover:text-text-muted hover:bg-surface-hover/50"
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))
-        }
-      </div>
-
       {/* ---- divider ---- */}
       <div className={`h-px bg-border-subtle ${isMobile ? "mx-5" : "mx-3"}`} />
 
       {/* ---- commit list ---- */}
       <div className={`flex-1 overflow-y-auto ${isMobile ? "px-3 py-3 space-y-1" : "px-2 py-2 space-y-0.5"} scrollbar-thin`}>
-        {isLoading && commits.length === 0
+        {(isLoading || isSearchingGithub) && displayedCommits.length === 0 && !isWaitingForDebounce
           ? Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
@@ -133,7 +174,7 @@ export default function CommitSidebar({
               </div>
             </div>
           ))
-          : filtered.map((commit) => {
+          : displayedCommits.map((commit) => {
             const isSelected = commit.sha === selectedSha;
             return (
               <button
@@ -182,7 +223,14 @@ export default function CommitSidebar({
             );
           })}
 
-        {error ? (
+        {isWaitingForDebounce ? (
+          <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
+            <Search className="w-5 h-5 mb-2 opacity-40" />
+            <p className="text-xs">Searching GitHub in 3 seconds...</p>
+          </div>
+        ) : null}
+
+        {activeError ? (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
             <p className="text-xs">Unable to load commits</p>
@@ -190,28 +238,13 @@ export default function CommitSidebar({
         ) : null}
 
         {/* empty state */}
-        {!isLoading && !error && filtered.length === 0 && (
+        {!isLoading && !isSearchingGithub && !isWaitingForDebounce && !activeError && displayedCommits.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
             <p className="text-xs">No commits found</p>
           </div>
         )}
       </div>
-
-      {/* ---- load more ---- */}
-      {
-        filtered.length > 0 && !search && (
-          <div className="px-3 py-3 border-t border-border-subtle">
-            <button
-              onClick={onLoadMore}
-              disabled={isLoading}
-              className="w-full py-2 rounded-lg border border-border-subtle bg-card/30 hover:bg-surface-hover text-xs text-text-muted hover:text-text-secondary font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Loading..." : "Load more commits"}
-            </button>
-          </div>
-        )
-      }
     </aside>
   );
 }
