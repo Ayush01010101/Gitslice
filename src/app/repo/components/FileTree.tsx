@@ -7,22 +7,23 @@ import {
   FileText,
   Check,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import type { MouseEventHandler } from "react";
 import { TreeItem } from "@/lib/types/tree.type";
+import { useRepoViewStore } from "../store/useRepoViewStore";
 
 export type { TreeItem };
 
 interface FileTreeProps {
   items: TreeItem[];
-  currentPath: string[];
-  selectedItems: Set<string>;
-  onNavigate: (path: string[]) => void;
-  onToggleSelect: (path: string) => void;
-  onSelectAll: (selected: boolean) => void;
-  onOpenFile: (item: TreeItem) => void;
-  onDownloadSelected: () => void;
   loading?: boolean;
   isMobile?: boolean;
+}
+
+interface SelectCheckboxProps {
+  checked: boolean;
+  indeterminate?: boolean;
+  onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 function formatSize(bytes: number): string {
@@ -31,20 +32,43 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function SelectCheckbox({
+  checked,
+  indeterminate = false,
+  onClick,
+}: SelectCheckboxProps) {
+  const active = checked || indeterminate;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${checked
+        ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
+        : indeterminate
+          ? "bg-[oklch(0.55_0.2_260)]/50 border-[oklch(0.55_0.2_260)]"
+          : "border-border-default hover:border-border-hover"
+        }`}
+    >
+      {active ? <Check className="w-3 h-3 text-white" strokeWidth={3} /> : null}
+    </button>
+  );
+}
 
 export default function FileTree({
   items,
-  currentPath,
-  selectedItems,
-  onNavigate,
-  onToggleSelect,
-  onSelectAll,
-  onOpenFile,
-  onDownloadSelected,
   loading = false,
   isMobile = false,
 }: FileTreeProps) {
-  const [copiedPath, setCopiedPath] = useState(false);
+  const currentPath = useRepoViewStore((state) => state.currentPath);
+  const selectedItems = useRepoViewStore((state) => state.selectedItems);
+  const navigateTo = useRepoViewStore((state) => state.navigateTo);
+  const toggleSelectedItem = useRepoViewStore(
+    (state) => state.toggleSelectedItem
+  );
+  const setAllSelectedItems = useRepoViewStore(
+    (state) => state.setAllSelectedItems
+  );
+  const openFileFromTree = useRepoViewStore((state) => state.openFileFromTree);
 
   /* sort: folders first, then alphabetical */
   const sorted = useMemo(() => {
@@ -67,6 +91,10 @@ export default function FileTree({
     return total;
   }, [items, selectedItems]);
 
+  const downloadSelectedItems = () => {
+    console.log("Download selected:", selectedItems);
+  };
+
   return (
     <div className={`${isMobile ? "w-full" : "w-85  shrink-0 border-r"
       } border-border-subtle bg-surface/30 flex flex-col h-full select-none`}>
@@ -75,7 +103,7 @@ export default function FileTree({
         <div className="flex items-center gap-2">
           {currentPath.length > 0 && (
             <button
-              onClick={() => onNavigate(currentPath.slice(0, -1))}
+              onClick={() => navigateTo(currentPath.slice(0, -1))}
               className="p-1 rounded-md hover:bg-surface-hover text-text-ghost hover:text-text-secondary transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -89,13 +117,13 @@ export default function FileTree({
 
       {/* ---- breadcrumb ---- */}
       <div className={`${isMobile ? "px-5" : "px-4"} pb-2`}>
-        <div className={`flex items-center gap-1 ${isMobile ? "text-sm" : "text-xs"} text-text-ghost overflow-x-auto`}>
+        <div className={`flex items-center scrollbar-none gap-1 ${isMobile ? "text-sm" : "text-xs"} text-text-ghost overflow-x-auto`}>
 
           {currentPath.map((segment, i) => (
-            <div key={i} className="flex items-center gap-1 shrink-0">
+            <div key={i} className="flex  items-center gap-1 shrink-0">
               <span className="text-text-ghost">/</span>
               <button
-                onClick={() => onNavigate(currentPath.slice(0, i + 1))}
+                onClick={() => navigateTo(currentPath.slice(0, i + 1))}
                 className="hover:text-text-secondary transition-colors cursor-pointer font-mono"
               >
                 {segment}
@@ -113,19 +141,11 @@ export default function FileTree({
       {/* ---- table header ---- */}
       <div className={`flex items-center gap-3 ${isMobile ? "px-5" : "px-4"} py-2.5 border-b border-border-subtle`}>
         {/* select-all checkbox */}
-        <button
-          onClick={() => onSelectAll(!allChecked)}
-          className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${allChecked
-            ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
-            : someChecked
-              ? "bg-[oklch(0.55_0.2_260)]/50 border-[oklch(0.55_0.2_260)]"
-              : "border-border-default hover:border-border-hover"
-            }`}
-        >
-          {(allChecked || someChecked) && (
-            <Check className="w-3 h-3 text-white" strokeWidth={3} />
-          )}
-        </button>
+        <SelectCheckbox
+          checked={allChecked}
+          indeterminate={someChecked && !allChecked}
+          onClick={() => setAllSelectedItems(sorted, !allChecked)}
+        />
         <span className={`${isMobile ? "text-sm" : "text-xs"} font-medium text-text-muted`}>Name</span>
       </div>
 
@@ -149,7 +169,7 @@ export default function FileTree({
             {/* parent directory */}
             {currentPath.length > 0 && (
               <button
-                onClick={() => onNavigate(currentPath.slice(0, -1))}
+                onClick={() => navigateTo(currentPath.slice(0, -1))}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface-hover/60 transition-colors cursor-pointer group"
               >
                 <div className="w-4" />
@@ -168,20 +188,13 @@ export default function FileTree({
                   className={`flex items-center gap-3 ${isMobile ? "px-4 py-3.5" : "px-3 py-2.5"} rounded-xl hover:bg-surface-hover/60 transition-colors group`}
                 >
                   {/* checkbox */}
-                  <button
+                  <SelectCheckbox
+                    checked={isChecked}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleSelect(item.path);
+                      toggleSelectedItem(item.path);
                     }}
-                    className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors cursor-pointer shrink-0 ${isChecked
-                      ? "bg-[oklch(0.55_0.2_260)] border-[oklch(0.55_0.2_260)]"
-                      : "border-border-default hover:border-border-hover"
-                      }`}
-                  >
-                    {isChecked && (
-                      <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                    )}
-                  </button>
+                  />
 
                   {/* icon */}
                   {item.type === "dir" ? (
@@ -194,9 +207,9 @@ export default function FileTree({
                   <button
                     onClick={() => {
                       if (item.type === "dir") {
-                        onNavigate([...currentPath, item.name]);
+                        navigateTo([...currentPath, item.name]);
                       } else {
-                        onOpenFile(item);
+                        openFileFromTree(item);
                       }
                     }}
                     className={`flex-1 text-left ${isMobile ? "text-sm" : "text-xs"} text-text-secondary group-hover:text-text-primary font-medium transition-colors cursor-pointer truncate`}
@@ -216,6 +229,7 @@ export default function FileTree({
                     <a
                       href={item.download_url}
                       target="_blank"
+                      download={item.name}
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className="p-0.5 rounded hover:bg-surface-active text-text-ghost hover:text-text-secondary transition-colors opacity-0 group-hover:opacity-100"
@@ -256,7 +270,7 @@ export default function FileTree({
             </span>
 
             <button
-              onClick={onDownloadSelected}
+              onClick={downloadSelectedItems}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)]"
             >
               <Download className="w-3.5 h-3.5" />

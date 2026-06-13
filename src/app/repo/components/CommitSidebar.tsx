@@ -1,78 +1,66 @@
 "use client";
 import formatRelativeTime from "@/lib/formatRelativeTime";
 import { Search, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { Commit } from "@/lib/types/commit.type";
 import { useQuery } from "@tanstack/react-query";
+import { useRepoViewStore } from "../store/useRepoViewStore";
 
 export type { Commit };
 
+const COMMIT_TABS = [
+  { key: "all" as const, label: "All" },
+  { key: "branches" as const, label: "Branches" },
+];
+
 interface CommitSidebarProps {
-  commits: Commit[];
-  commitPage?: number;
-  owner: string,
-  reponame: string
-  selectedSha?: string;
-  Onclick: (commitSha: string) => {};
-  onLoadMore?: () => void;
-  loading?: boolean;
-  hasMore?: boolean;
   isMobile?: boolean;
 }
 
 export default function CommitSidebar({
-  Onclick,
-  onLoadMore,
-  owner,
-  reponame,
-  commitPage = 1,
-  loading = false,
-  hasMore = true,
   isMobile = false,
 }: CommitSidebarProps) {
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"all" | "branches">(
-    "all"
-  );
+  const [activeTab, setActiveTab] = useState<"all" | "branches">("all");
+  const deferredSearch = useDeferredValue(search);
+  const owner = useRepoViewStore((state) => state.owner);
+  const reponame = useRepoViewStore((state) => state.reponame);
+  const selectedSha = useRepoViewStore((state) => state.selectedSha);
+  const selectCommit = useRepoViewStore((state) => state.selectCommit);
 
-  const { isLoading, error: Commiterror, data: commitsdata } = useQuery({
-    queryKey: [`commits/${owner}/${reponame}/${commitPage}`],
+  const { isLoading, error, data: commitsData } = useQuery({
+    queryKey: ["commits", owner, reponame, 1],
     queryFn: async () => {
       const querystring = new URLSearchParams({
         owner,
         repo: reponame,
-        page: commitPage.toString()
-      }).toString()
-      console.log("use query trigger")
-      const data = await fetch(`/api/v1/getCommits?${querystring}`)
-      const commits = await data.json()
+        page: "1",
+      }).toString();
+      const data = await fetch(`/api/v1/getCommits?${querystring}`);
+      const commits = await data.json();
       return commits;
     },
+    enabled: !!owner && !!reponame,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    refetchOnWindowFocus: false
-  })
+    refetchOnWindowFocus: false,
+  });
 
-
-
-
-  if (isLoading) return null;
-  const commits = commitsdata.data
+  const commits = (commitsData?.data ?? []) as Commit[];
   const filtered = useMemo(() => {
-    if (!search.trim()) return commits;
-    const q = search.toLowerCase();
+    if (!deferredSearch.trim()) return commits;
+    const q = deferredSearch.toLowerCase();
     return commits.filter(
       (c) =>
         c.message.toLowerCase().includes(q) ||
         c.sha.toLowerCase().startsWith(q) ||
         c.author.toLowerCase().includes(q)
     );
-  }, [commits, search]);
+  }, [commits, deferredSearch]);
 
-  const tabs = [
-    { key: "all" as const, label: "All" },
-    { key: "branches" as const, label: "Branches" },
-  ];
+  const onLoadMore = () => {
+    console.log("load more");
+  };
 
   return (
     <aside className={`${isMobile ? "w-full" : "w-96 shrink-0 border-r"} border-border-subtle bg-surface/40 backdrop-blur-md flex flex-col h-full select-none`}>
@@ -109,7 +97,7 @@ export default function CommitSidebar({
       {/* ---- tabs ---- */}
       <div className={`flex items-center gap-0.5 ${isMobile ? "px-5" : "px-3"} pb-3`}>
         {
-          tabs.map((tab) => (
+          COMMIT_TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -129,7 +117,7 @@ export default function CommitSidebar({
 
       {/* ---- commit list ---- */}
       <div className={`flex-1 overflow-y-auto ${isMobile ? "px-3 py-3 space-y-1" : "px-2 py-2 space-y-0.5"} scrollbar-thin`}>
-        {loading && commits.length === 0
+        {isLoading && commits.length === 0
           ? Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
@@ -146,14 +134,11 @@ export default function CommitSidebar({
             </div>
           ))
           : filtered.map((commit) => {
-            const isSelected = false;
+            const isSelected = commit.sha === selectedSha;
             return (
               <button
                 key={commit.sha}
-                onClick={() => {
-                  console.log(commit.sha)
-                  Onclick(commit.sha)
-                }}
+                onClick={() => selectCommit(commit.sha)}
                 className={`w-full text-left ${isMobile ? "px-4 py-4" : "px-3 py-3"} rounded-xl transition-all duration-150 cursor-pointer group`}
               >
                 {/* top row: avatar + message */}
@@ -197,8 +182,15 @@ export default function CommitSidebar({
             );
           })}
 
+        {error ? (
+          <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
+            <Search className="w-5 h-5 mb-2 opacity-40" />
+            <p className="text-xs">Unable to load commits</p>
+          </div>
+        ) : null}
+
         {/* empty state */}
-        {!loading && filtered.length === 0 && (
+        {!isLoading && !error && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-text-ghost">
             <Search className="w-5 h-5 mb-2 opacity-40" />
             <p className="text-xs">No commits found</p>
@@ -208,14 +200,14 @@ export default function CommitSidebar({
 
       {/* ---- load more ---- */}
       {
-        hasMore && filtered.length > 0 && !search && (
+        filtered.length > 0 && !search && (
           <div className="px-3 py-3 border-t border-border-subtle">
             <button
               onClick={onLoadMore}
-              disabled={loading}
+              disabled={isLoading}
               className="w-full py-2 rounded-lg border border-border-subtle bg-card/30 hover:bg-surface-hover text-xs text-text-muted hover:text-text-secondary font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Loading..." : "Load more commits"}
+              {isLoading ? "Loading..." : "Load more commits"}
             </button>
           </div>
         )
