@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { TreeItem } from "@/lib/types/tree.type";
+import type { TreeItem } from "@/lib/types/tree.type";
+import { downloadSelectedFiles } from "../functions/DownloadSelectedFiles";
 
 export interface OpenFileContent {
   filename: string;
@@ -21,6 +22,8 @@ interface RepoViewState {
   selectedItems: Set<string>;
   showSidebar: boolean;
   openFile: OpenFileContent;
+  isDownloadingSelected: boolean;
+  downloadError: string;
   setRepository: (owner: string, reponame: string) => void;
   selectCommit: (sha: string) => void;
   navigateTo: (path: string[]) => void;
@@ -28,6 +31,7 @@ interface RepoViewState {
   setAllSelectedItems: (items: TreeItem[], selected: boolean) => void;
   toggleSidebar: () => void;
   openFileFromTree: (item: TreeItem) => Promise<void>;
+  downloadSelectedItems: (items: TreeItem[]) => Promise<void>;
   closeFile: () => void;
 }
 
@@ -39,6 +43,8 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
   selectedItems: new Set<string>(),
   showSidebar: true,
   openFile: emptyOpenFile,
+  isDownloadingSelected: false,
+  downloadError: "",
   setRepository: (owner, reponame) =>
     set((state) => {
       if (state.owner === owner && state.reponame === reponame) {
@@ -52,6 +58,8 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
         currentPath: [],
         selectedItems: new Set<string>(),
         openFile: emptyOpenFile,
+        isDownloadingSelected: false,
+        downloadError: "",
       };
     }),
   selectCommit: (sha) =>
@@ -60,12 +68,14 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
       currentPath: [],
       selectedItems: new Set<string>(),
       openFile: emptyOpenFile,
+      downloadError: "",
     }),
   navigateTo: (path) =>
     set({
       currentPath: path,
       selectedItems: new Set<string>(),
       openFile: emptyOpenFile,
+      downloadError: "",
     }),
   toggleSelectedItem: (path) =>
     set((state) => {
@@ -79,11 +89,13 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
 
       return { selectedItems };
     }),
-  setAllSelectedItems: (items, selected) => ({
-    selectedItems: selected
-      ? new Set(items.map((item) => item.path))
-      : new Set<string>(),
-  }),
+  setAllSelectedItems: (items, selected) =>
+    set({
+      selectedItems: selected
+        ? new Set(items.map((item) => item.path))
+        : new Set<string>(),
+      downloadError: "",
+    }),
   toggleSidebar: () => set((state) => ({ showSidebar: !state.showSidebar })),
   openFileFromTree: async (item) => {
     if (!item.download_url) {
@@ -100,6 +112,40 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
         rawUrl: item.download_url,
       },
     });
+  },
+  downloadSelectedItems: async (items) => {
+    const { owner, reponame, selectedSha, selectedItems } =
+      useRepoViewStore.getState();
+    const itemsToDownload = items.filter((item) => selectedItems.has(item.path));
+
+    if (itemsToDownload.length === 0) {
+      return;
+    }
+
+    if (!owner || !reponame || !selectedSha) {
+      set({ downloadError: "Select a commit before downloading files." });
+      return;
+    }
+
+    set({ isDownloadingSelected: true, downloadError: "" });
+
+    try {
+      await downloadSelectedFiles({
+        owner,
+        repo: reponame,
+        ref: selectedSha,
+        items: itemsToDownload,
+      });
+    } catch (error) {
+      set({
+        downloadError:
+          error instanceof Error
+            ? error.message
+            : "Failed to download selected files.",
+      });
+    } finally {
+      set({ isDownloadingSelected: false });
+    }
   },
   closeFile: () => set({ openFile: emptyOpenFile }),
 }));

@@ -69,6 +69,13 @@ export default function FileTree({
     (state) => state.setAllSelectedItems
   );
   const openFileFromTree = useRepoViewStore((state) => state.openFileFromTree);
+  const downloadSelectedItems = useRepoViewStore(
+    (state) => state.downloadSelectedItems
+  );
+  const isDownloadingSelected = useRepoViewStore(
+    (state) => state.isDownloadingSelected
+  );
+  const downloadError = useRepoViewStore((state) => state.downloadError);
 
   /* sort: folders first, then alphabetical */
   const sorted = useMemo(() => {
@@ -90,10 +97,6 @@ export default function FileTree({
     });
     return total;
   }, [items, selectedItems]);
-
-  const downloadSelectedItems = () => {
-    console.log("Download selected:", selectedItems);
-  };
 
   return (
     <div className={`${isMobile ? "w-full" : "w-85  shrink-0 border-r"
@@ -256,7 +259,7 @@ export default function FileTree({
       {/* ---- selection bar ---- */}
       {
         selectedCount > 0 && (
-          <div className={`border-t border-border-subtle ${isMobile ? "px-5" : "px-4"} py-3 flex items-center justify-between bg-card/30 backdrop-blur-sm`}>
+          <div className={`border-t border-border-subtle ${isMobile ? "px-5" : "px-4"} py-3 flex flex-wrap items-center justify-between gap-2 bg-card/30 backdrop-blur-sm`}>
             <span className="text-xs text-text-muted">
               <span className="font-semibold text-text-secondary">
                 {selectedCount} item{selectedCount > 1 ? "s" : ""}
@@ -270,12 +273,18 @@ export default function FileTree({
             </span>
 
             <button
-              onClick={downloadSelectedItems}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)]"
+              onClick={() => downloadSelectedItems(sorted)}
+              disabled={isDownloadingSelected}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)] disabled:cursor-wait disabled:opacity-70"
             >
               <Download className="w-3.5 h-3.5" />
-              Download Selected (ZIP)
+              {isDownloadingSelected ? "Preparing ZIP..." : "Download Selected (ZIP)"}
             </button>
+            {downloadError ? (
+              <p className="basis-full pt-2 text-[11px] text-red-400">
+                {downloadError}
+              </p>
+            ) : null}
           </div>
         )
       }
