@@ -50,18 +50,18 @@ export default function RepoInfoBar({
   /* ---------- loading skeleton ---------- */
   if (loading) {
     return (
-      <div className="w-full border-b border-border-subtle bg-surface/60 backdrop-blur-md px-6 py-5">
-        <div className="flex items-start justify-between gap-6">
+      <div className="w-full border-b border-border-subtle bg-surface/60 backdrop-blur-md px-4 sm:px-6 py-4 sm:py-5">
+        <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="space-y-3 flex-1">
-            <div className="h-5 w-48 rounded bg-surface-hover animate-pulse" />
-            <div className="h-3 w-72 rounded bg-surface-hover animate-pulse" />
+            <div className="h-5 w-48 max-w-full rounded bg-surface-hover animate-pulse" />
+            <div className="h-3 w-72 max-w-full rounded bg-surface-hover animate-pulse" />
             <div className="flex gap-4">
               <div className="h-4 w-16 rounded bg-surface-hover animate-pulse" />
               <div className="h-4 w-16 rounded bg-surface-hover animate-pulse" />
               <div className="h-4 w-16 rounded bg-surface-hover animate-pulse" />
             </div>
           </div>
-          <div className="h-10 w-40 rounded-xl bg-surface-hover animate-pulse" />
+          <div className="hidden h-10 w-40 rounded-xl bg-surface-hover animate-pulse lg:block" />
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ export default function RepoInfoBar({
         {/* ---- Left: repo identity ---- */}
         <div className="flex flex-col gap-2.5 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-semibold tracking-tight truncate">
+            <h1 className="min-w-0 max-w-full text-lg sm:text-xl font-semibold tracking-tight truncate">
               <span className="text-text-secondary">{owner}</span>
               <span className="text-text-ghost mx-1.5">/</span>
               <span className="text-foreground">{reponame}</span>

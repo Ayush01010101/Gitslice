@@ -222,7 +222,7 @@ export default function FileTree({
 
                   {/* size */}
                   {item.type === "file" && item.size !== undefined && (
-                    <span className="text-xs text-text-ghost font-mono shrink-0">
+                    <span className={`${isMobile ? "hidden sm:inline" : ""} text-xs text-text-ghost font-mono shrink-0`}>
                       {formatSize(item.size)}
                     </span>
                   )}
@@ -235,7 +235,7 @@ export default function FileTree({
                       download={item.name}
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-0.5 rounded hover:bg-surface-active text-text-ghost hover:text-text-secondary transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-1 rounded hover:bg-surface-active text-text-ghost hover:text-text-secondary transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                     >
                       <Download className="w-3.5 h-3.5" />
                     </a>
@@ -275,7 +275,7 @@ export default function FileTree({
             <button
               onClick={() => downloadSelectedItems(sorted)}
               disabled={isDownloadingSelected}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-xs font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)] disabled:cursor-wait disabled:opacity-70"
+              className={`${isMobile ? "w-full justify-center py-2.5" : ""} flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[oklch(0.5_0.16_260)] hover:bg-[oklch(0.55_0.18_260)] text-white text-xs font-semibold transition-all duration-200 cursor-pointer active:scale-[0.97] shadow-[0_0_15px_oklch(0.4_0.12_260_/_20%)] disabled:cursor-wait disabled:opacity-70`}
             >
               <Download className="w-3.5 h-3.5" />
               {isDownloadingSelected ? "Preparing ZIP..." : "Download Selected (ZIP)"}
