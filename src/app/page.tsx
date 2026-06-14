@@ -6,9 +6,17 @@ import TextType from "@/components/TextType";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GithubSearchInput } from "./components/Githubinput";
-
+import { toast } from "sonner";
 import { GitBranchMinus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+/** Matches exactly: https://github.com/<owner>/<repo>
+ *  - No trailing slash
+ *  - No sub-paths / query strings / fragments
+ *  - Owner & repo: alphanumeric, hyphens, dots, underscores (1–100 chars each)
+ */
+const GITHUB_REPO_REGEX =
+  /^https:\/\/github\.com\/([a-zA-Z0-9._-]{1,100})\/([a-zA-Z0-9._-]{1,100})\/?$/;
 
 export default function GitHubStatsHome() {
   const [repourl, setrepourl] = useState<string>("")
@@ -97,11 +105,21 @@ export default function GitHubStatsHome() {
                   setrepourl(e.target.value)
                 }}
                 onSubmit={(val) => {
+                  const trimmed = val.trim();
+                  const match = GITHUB_REPO_REGEX.exec(trimmed);
 
-                  const extractedRepoNameandOwner = repourl.split("/")
+                  if (!match) {
+                    toast.error("Failed to find repo", {
+                      description:
+                        "Use the format: https://github.com/owner/repo",
+                      duration: 4000,
+                    });
+                    return;
+                  }
 
-                  const routeToNavigate = `${extractedRepoNameandOwner[3]}/${extractedRepoNameandOwner[4]}`
-                  router.push(`/repo/${routeToNavigate}`)
+                  const owner = match[1];
+                  const repo = match[2];
+                  router.push(`/repo/${owner}/${repo}`);
                 }}
               />
             </div>
