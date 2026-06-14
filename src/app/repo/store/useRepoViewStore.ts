@@ -22,6 +22,7 @@ interface RepoViewState {
   selectedItems: Set<string>;
   showSidebar: boolean;
   openFile: OpenFileContent;
+  pendingFileUrl: string;
   isDownloadingSelected: boolean;
   downloadError: string;
   setRepository: (owner: string, reponame: string) => void;
@@ -30,7 +31,8 @@ interface RepoViewState {
   toggleSelectedItem: (path: string) => void;
   setAllSelectedItems: (items: TreeItem[], selected: boolean) => void;
   toggleSidebar: () => void;
-  openFileFromTree: (item: TreeItem) => Promise<void>;
+  openFileFromTree: (item: TreeItem) => void;
+  setOpenFile: (file: OpenFileContent) => void;
   downloadSelectedItems: (items: TreeItem[]) => Promise<void>;
   closeFile: () => void;
 }
@@ -43,6 +45,7 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
   selectedItems: new Set<string>(),
   showSidebar: true,
   openFile: emptyOpenFile,
+  pendingFileUrl: "",
   isDownloadingSelected: false,
   downloadError: "",
   setRepository: (owner, reponame) =>
@@ -97,22 +100,11 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
       downloadError: "",
     }),
   toggleSidebar: () => set((state) => ({ showSidebar: !state.showSidebar })),
-  openFileFromTree: async (item) => {
-    if (!item.download_url) {
-      return;
-    }
-
-    const response = await fetch(item.download_url);
-    const content = await response.text();
-
-    set({
-      openFile: {
-        filename: item.name,
-        content,
-        rawUrl: item.download_url,
-      },
-    });
+  openFileFromTree: (item) => {
+    if (!item.download_url) return;
+    set({ pendingFileUrl: item.download_url, openFile: emptyOpenFile });
   },
+  setOpenFile: (file) => set({ openFile: file }),
   downloadSelectedItems: async (items) => {
     const { owner, reponame, selectedSha, selectedItems } =
       useRepoViewStore.getState();
@@ -147,5 +139,5 @@ export const useRepoViewStore = create<RepoViewState>((set) => ({
       set({ isDownloadingSelected: false });
     }
   },
-  closeFile: () => set({ openFile: emptyOpenFile }),
+  closeFile: () => set({ openFile: emptyOpenFile, pendingFileUrl: "" }),
 }));

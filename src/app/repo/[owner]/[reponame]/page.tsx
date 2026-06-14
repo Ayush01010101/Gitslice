@@ -32,6 +32,8 @@ export default function RepoPage() {
   const openFile = useRepoViewStore((state) => state.openFile);
   const closeFile = useRepoViewStore((state) => state.closeFile);
   const selectedCount = useRepoViewStore((state) => state.selectedItems.size);
+  const pendingFileUrl = useRepoViewStore((state) => state.pendingFileUrl);
+  const setOpenFile = useRepoViewStore((state) => state.setOpenFile);
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("commits");
 
   useEffect(() => {
@@ -75,6 +77,22 @@ export default function RepoPage() {
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+  });
+
+  /* ---- fetch file content with TanStack Query ---- */
+  const pendingFilename = pendingFileUrl
+    ? pendingFileUrl.split("/").pop() ?? ""
+    : "";
+  useQuery({
+    queryKey: ["fileContent", pendingFileUrl],
+    queryFn: async () => {
+      const response = await fetch(pendingFileUrl);
+      if (!response.ok) throw new Error(`File fetch failed: ${response.status}`);
+      const content = await response.text();
+      setOpenFile({ filename: pendingFilename, content, rawUrl: pendingFileUrl });
+      return content;
+    },
+    enabled: !!pendingFileUrl,
   });
 
   const treeItems: TreeItem[] = contentsData ?? [];
