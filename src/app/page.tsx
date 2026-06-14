@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 export default function GitHubStatsHome() {
   const [repourl, setrepourl] = useState<string>("")
   const router = useRouter()
+
   console.log(process.env.github_api_url)
 
   return (
@@ -108,21 +109,19 @@ export default function GitHubStatsHome() {
             {/* Chips below search */}
             <div className="mt-8 flex flex-wrap justify-center items-center gap-3 z-10 max-w-lg px-4">
               {[
-                { label: "Linus Torvalds", user: "torvalds" },
-                { label: "Tesla Zhang", user: "teslazhang" },
-                { label: "Daichi Furiya", user: "daichi" },
-                { label: "Sourav", user: "sourav" }
+                { label: "FastAPI", user: "python", repo: "/fastapi/fastapi" },
+                { label: "Todo-list", user: "todo", repo: "/maciekt07/TodoApp" },
+                { label: "FFMPEG", user: "ffmpeg", repo: "/ffmpeg/ffmpeg" },
               ].map((chip) => (
                 <button
                   key={chip.user}
                   onClick={() => {
-                    console.log("Clicked chip:", chip.user);
+                    router.push(`/repo${chip.repo}`)
+
                   }}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-border-default bg-surface/10 hover:border-border-hover hover:bg-surface-hover/30 text-xs text-text-faint hover:text-foreground transition-all duration-300 cursor-pointer"
                 >
-                  {chip.label === "Sourav" && (
-                    <span className="text-[10px] text-text-faint font-mono mr-0.5">風</span>
-                  )}
+
                   <span>{chip.label}</span>
                 </button>
               ))}

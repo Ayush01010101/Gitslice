@@ -2,11 +2,9 @@
 "use client";
 import { RepoInfoBarProps } from "@/lib/types/repoInfoBar.type";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import {
   Star,
   GitFork,
-  Download,
 } from "lucide-react";
 
 
@@ -15,9 +13,6 @@ function formatNumber(num: number): string {
   if (num >= 1000) return (num / 1000).toFixed(1) + "k";
   return num.toString()
 }
-
-
-
 
 export default function RepoInfoBar({
   owner,
@@ -106,15 +101,6 @@ export default function RepoInfoBar({
           </div>
         </div>
 
-        {/* ---- Right: download button (desktop only) ---- */}
-        <div className=" hidden lg:flex items-center shrink-0">
-          <Button >
-
-            <Download />
-            Download Zip
-          </Button>
-
-        </div>
       </div>
     </div>
   );
