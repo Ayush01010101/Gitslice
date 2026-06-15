@@ -6,7 +6,7 @@ import CommitSidebar from "../../components/CommitSidebar";
 import FileTree from "../../components/FileTree";
 import { type TreeItem } from "@/lib/types/tree.type";
 import { useQuery } from "@tanstack/react-query";
-import CodeViewer, { CodeViewerEmpty } from "../../components/CodeViewer";
+import CodeViewer, { CodeViewerEmpty, CodeViewerLoading } from "../../components/CodeViewer";
 import { useRepoViewStore } from "../../store/useRepoViewStore";
 import { Code2, GitCommit, FolderTree, type LucideIcon } from "lucide-react";
 
@@ -83,7 +83,7 @@ export default function RepoPage() {
   const pendingFilename = pendingFileUrl
     ? pendingFileUrl.split("/").pop() ?? ""
     : "";
-  useQuery({
+  const { isLoading: fileLoading } = useQuery({
     queryKey: ["fileContent", pendingFileUrl],
     queryFn: async () => {
       const response = await fetch(pendingFileUrl);
@@ -102,18 +102,23 @@ export default function RepoPage() {
     setMobilePanel("files");
   };
 
-  const renderCodeViewer = () =>
-    hasOpenFile ? (
-      <CodeViewer
-        filename={openFile.filename}
-        content={openFile.content}
-        language={openFile.language}
-        rawUrl={openFile.rawUrl}
-        onClose={handleCloseFile}
-      />
-    ) : (
-      <CodeViewerEmpty />
-    );
+  const renderCodeViewer = () => {
+    if (fileLoading) {
+      return <CodeViewerLoading filename={pendingFilename} />;
+    }
+    if (hasOpenFile) {
+      return (
+        <CodeViewer
+          filename={openFile.filename}
+          content={openFile.content}
+          language={openFile.language}
+          rawUrl={openFile.rawUrl}
+          onClose={handleCloseFile}
+        />
+      );
+    }
+    return <CodeViewerEmpty />;
+  };
 
   return (
     <div className="h-dvh flex flex-col bg-background overflow-hidden">
@@ -136,7 +141,7 @@ export default function RepoPage() {
           loading={contentsLoading && !!selectedSha}
         />
 
-        {hasOpenFile ? renderCodeViewer() : null}
+        {(hasOpenFile || fileLoading) ? renderCodeViewer() : <CodeViewerEmpty />}
       </div>
 
       {/* ---- mobile layout ---- */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Download, FileText, Code2 } from "lucide-react";
+import { X, Download, FileText, Code2, Loader2 } from "lucide-react";
 import { useMemo } from "react";
 
 interface CodeViewerProps {
@@ -344,11 +344,92 @@ export function CodeViewerEmpty() {
         </div>
         <div className="text-center">
           <p className="text-base font-medium text-text-muted mb-1">
-            No file selected
+            Select a file to preview
           </p>
           <p className="text-sm text-text-ghost max-w-60">
             Click on a file in the tree to view its contents here
           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+/** Loading skeleton shown while file content is being fetched */
+export function CodeViewerLoading({ filename }: { filename: string }) {
+  const skeletonLines = [
+    { indent: 0, width: "w-32" },
+    { indent: 0, width: "w-56" },
+    { indent: 1, width: "w-72" },
+    { indent: 2, width: "w-48" },
+    { indent: 2, width: "w-64" },
+    { indent: 1, width: "w-36" },
+    { indent: 0, width: "w-16" },
+    { indent: 0, width: "w-0" },
+    { indent: 0, width: "w-24" },
+    { indent: 1, width: "w-80" },
+    { indent: 2, width: "w-52" },
+    { indent: 2, width: "w-44" },
+    { indent: 3, width: "w-60" },
+    { indent: 2, width: "w-40" },
+    { indent: 1, width: "w-28" },
+    { indent: 0, width: "w-16" },
+  ];
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-background/60 min-w-0 select-none">
+      {/* ---- tab bar skeleton ---- */}
+      <div className="flex items-center gap-2 border-b border-border-subtle bg-surface/30 pl-1 pr-2 sm:pr-3 min-w-0">
+        <div className="flex min-w-0 items-center gap-2 px-3 sm:px-4 py-2.5 bg-background/60 border-b-2 border-[oklch(0.6_0.18_260)] text-text-primary">
+          <FileText className="w-3.5 h-3.5 text-text-muted" />
+          <span className="min-w-0 max-w-[44vw] truncate text-sm font-medium sm:max-w-none text-text-muted">
+            {filename}
+          </span>
+        </div>
+      </div>
+
+      {/* ---- loading body ---- */}
+      <div className="flex-1 overflow-hidden flex flex-col items-center justify-center gap-6 px-6">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-6 h-6 text-[oklch(0.6_0.18_260)] animate-spin" />
+          <p className="text-sm text-text-ghost">Loading file&hellip;</p>
+        </div>
+
+        {/* skeleton code lines */}
+        <div className="w-full max-w-lg font-mono text-xs space-y-2 opacity-30">
+          {skeletonLines.map((line, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              {/* gutter */}
+              <div className="w-6 shrink-0 h-3 rounded bg-surface/60 animate-pulse" />
+              {/* indentation spacer */}
+              {line.indent > 0 && (
+                <div style={{ width: `${line.indent * 16}px` }} className="shrink-0" />
+              )}
+              {/* code line */}
+              {line.width !== "w-0" ? (
+                <div
+                  className={`h-3 rounded bg-surface/60 animate-pulse ${line.width}`}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                />
+              ) : (
+                <div className="h-3" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ---- status bar skeleton ---- */}
+      <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 sm:py-1.5 border-t border-border-subtle bg-surface/30 text-xs text-text-ghost">
+        <div className="flex items-center gap-1.5">
+          <Code2 className="w-3 h-3" />
+          <div className="w-16 h-2.5 rounded bg-surface/60 animate-pulse" />
         </div>
       </div>
     </div>

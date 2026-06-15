@@ -34,7 +34,7 @@ export function GithubSearchInput({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (onSubmit) {
       onSubmit(inputValue);
@@ -63,7 +63,7 @@ export function GithubSearchInput({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="flex-grow h-10 border-0 bg-transparent text-white placeholder-zinc-500 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-2 text-base md:text-sm"
+        className="grow h-10 border-0 bg-transparent text-white placeholder-zinc-500 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-2 text-base md:text-sm"
         {...props}
       />
 
