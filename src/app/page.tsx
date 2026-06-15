@@ -34,7 +34,7 @@ export default function GitHubStatsHome() {
         {/* Navigation Bar */}
         <header className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border-default bg-surface-hover/20 backdrop-blur-md">
-            <GitBranchMinus className="w-4 h-4 text-text-secondary" />
+            <img src={"/favicon.svg"} className="h-5 w-5" />
             <span className="text-xs font-semibold tracking-tight opacity-70 text-foreground cursor-pointer" onClick={() => { window.open("https://github.com/Ayush01010101/Gitslice") }}>GitSlice</span>
             <span className="px-1.5 py-0.5 rounded-full bg-badge-bg text-[9px] font-bold text-badge-text border border-badge-border">beta</span>
           </div>
