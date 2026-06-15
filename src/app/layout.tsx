@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Open_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
 import Providers from "@/lib/Providers";
 
@@ -20,17 +21,17 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "GitSlice — Explore GitHub repos commit by commit",
+    default: "GitSlice — Download any GitHub subdirectory instantly",
     template: "%s | GitSlice",
   },
   description:
-    "GitSlice lets you browse any GitHub repository's history one commit at a time. Explore file trees, diff code, and understand how a project evolved.",
+    "GitSlice lets you download any subdirectory of a GitHub repository in one click — no need to clone the whole repo. Browse file trees with a rich GUI and grab only what you need.",
   keywords: [
-    "GitHub",
-    "repository explorer",
-    "commit history",
-    "code viewer",
-    "git browser",
+    "GitHub subdirectory downloader",
+    "download GitHub folder",
+    "git sparse checkout",
+    "GitHub code downloader",
+    "download part of GitHub repo",
     "open source",
   ],
   authors: [{ name: "GitSlice" }],
@@ -40,9 +41,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "GitSlice — Explore GitHub repos commit by commit",
+    title: "GitSlice — Download any GitHub subdirectory instantly",
     description:
-      "Browse any GitHub repository's history one commit at a time. Explore file trees and understand how a project evolved.",
+      "Browse any GitHub repo's file tree and download only the subdirectory you need — no full clone required.",
     images: [
       {
         url: "/favicon.svg",
@@ -54,9 +55,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "GitSlice — Explore GitHub repos commit by commit",
+    title: "GitSlice — Download any GitHub subdirectory instantly",
     description:
-      "Browse any GitHub repository's history one commit at a time. Explore file trees and understand how a project evolved.",
+      "Browse any GitHub repo's file tree and download only the subdirectory you need — no full clone required.",
     images: ["/favicon.svg"],
   },
 };
@@ -73,6 +74,7 @@ export default function RootLayout({
       lang="en"
       className={`${openSans.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <Analytics />
 
       <body className="min-h-full flex flex-col">
         <Providers >

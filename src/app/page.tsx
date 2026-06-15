@@ -39,6 +39,7 @@ export default function GitHubStatsHome() {
             <span className="px-1.5 py-0.5 rounded-full bg-badge-bg text-[9px] font-bold text-badge-text border border-badge-border">beta</span>
           </div>
 
+
           <Button onClick={() => window.open("https://github.com/Ayush01010101/Gitslice")} className="hidden md:flex gap-2 items-center text-xs text-text-muted font-mono tracking-wider">
             Gitub Star<Star />
           </Button>
